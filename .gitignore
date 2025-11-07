@@ -1,0 +1,5 @@
+# Secret key
+service_account_key.json
+
+# Virtual environment
+venv/
