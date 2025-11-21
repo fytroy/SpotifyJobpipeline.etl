@@ -7,7 +7,8 @@ print(f"Loading data from {FILE_NAME}...")
 
 try:
     # 1. LOAD THE DATA
-    df = pd.read_csv(FILE_NAME)
+    # We add low_memory=False to silence the DtypeWarning
+    df = pd.read_csv(FILE_NAME, low_memory=False)
 
     # 2. EXPLORE: Print the first 5 rows
     print("\n--- First 5 Rows (Head) ---")

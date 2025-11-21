@@ -2,6 +2,7 @@ import pandas as pd
 from google.cloud import bigquery
 from google.oauth2 import service_account
 import pandas_gbq
+import os
 
 # --- CONFIGURATION ---
 # We can re-use all the same project details from before
@@ -33,18 +34,25 @@ def load_to_bigquery():
         print("Column names cleaned.")
 
     except FileNotFoundError:
-        print(f"ERROR: Could not find {CLEAN_FILE_NAME}.")
+        print(f"ERROR: Could not find {CLEAN_FILE_NAME}. Please run transform.py first.")
         return
     except Exception as e:
         print(f"ERROR reading CSV: {e}")
         return
 
-    # 2. LOAD TO BIGQUERY
+    # 2. CHECK CREDENTIALS
+    if not os.path.exists(KEY_PATH):
+        print(f"\nWARNING: Service account key file '{KEY_PATH}' not found.")
+        print("Skipping BigQuery upload step.")
+        print("To enable BigQuery upload, place your JSON key file in the project directory")
+        print(f"and name it '{KEY_PATH}', or update the KEY_PATH variable in this script.")
+        return
+
+    # 3. LOAD TO BIGQUERY
     print(f"Loading data into BigQuery table {PROJECT_ID}.{DATASET_ID}.{TABLE_ID}...")
 
-    credentials = service_account.Credentials.from_service_account_file(KEY_PATH)
-
     try:
+        credentials = service_account.Credentials.from_service_account_file(KEY_PATH)
         pandas_gbq.to_gbq(
             df,
             destination_table=f"{DATASET_ID}.{TABLE_ID}",
